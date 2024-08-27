@@ -7,8 +7,7 @@
  *
  ****************************************************************************/
 
-#ifndef LogDownloadTest_H
-#define LogDownloadTest_H
+#pragma once
 
 #include "UnitTest.h"
 
@@ -17,36 +16,24 @@ class MultiSignalSpy;
 class LogDownloadTest : public UnitTest
 {
     Q_OBJECT
-    
-public:
-    LogDownloadTest(void);
-    
-private slots:
-    //void init(void);
-    //void cleanup(void) { _cleanup(); }
 
-    void downloadTest(void);
+private slots:
+    void _downloadTest();
 
 private:
-    // LogDownloadController signals
-
     enum {
         requestingListChangedSignalIndex = 0,
         downloadingLogsChangedSignalIndex,
-        modelChangedSignalIndex,
         logDownloadControllerMaxSignalIndex
     };
 
     enum {
-        requestingListChangedSignalMask =   1 << requestingListChangedSignalIndex,
-        downloadingLogsChangedSignalMask =  1 << downloadingLogsChangedSignalIndex,
-        modelChangedSignalIndexMask =       1 << modelChangedSignalIndex,
+        requestingListChangedSignalMask = 1 << requestingListChangedSignalIndex,
+        downloadingLogsChangedSignalMask = 1 << downloadingLogsChangedSignalIndex,
     };
 
-    MultiSignalSpy*     _multiSpyLogDownloadController;
-    static const size_t _cLogDownloadControllerSignals = logDownloadControllerMaxSignalIndex;
-    const char*         _rgLogDownloadControllerSignals[_cLogDownloadControllerSignals];
+    MultiSignalSpy *_multiSpyLogDownloadController = nullptr;
 
+    static constexpr size_t _cLogDownloadControllerSignals = logDownloadControllerMaxSignalIndex;
+    const char *_rgLogDownloadControllerSignals[_cLogDownloadControllerSignals] = {0};
 };
-
-#endif
