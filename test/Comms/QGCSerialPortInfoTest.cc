@@ -14,7 +14,9 @@
 
 void QGCSerialPortInfoTest::_testLoadJsonData()
 {
+#ifndef NO_SERIAL_LINK
     QVERIFY(!QGCSerialPortInfo::_jsonLoaded);
     QGCSerialPortInfo::_loadJsonData();
     QVERIFY(QGCSerialPortInfo::_jsonLoaded);
+#endif
 }

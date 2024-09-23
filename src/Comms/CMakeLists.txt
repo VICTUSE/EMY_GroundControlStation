@@ -74,7 +74,6 @@ endif()
 
 ############# Bluetooth
 
-option(QGC_ENABLE_BLUETOOTH "Enable Bluetooth Links" ON)
 if(QGC_ENABLE_BLUETOOTH)
     find_package(Qt6 REQUIRED COMPONENTS Bluetooth)
     target_link_libraries(Comms PUBLIC Qt6::Bluetooth)

@@ -125,7 +125,9 @@ int runTests(bool stress, QStringView unitTestOptions)
 	// UT_REGISTER_TEST(RadioConfigTest)
 
 	// Comms
+#ifndef NO_SERIAL_LINK
 	UT_REGISTER_TEST(QGCSerialPortInfoTest)
+#endif
 
 	// FactSystem
 	UT_REGISTER_TEST(FactSystemTestGeneric)

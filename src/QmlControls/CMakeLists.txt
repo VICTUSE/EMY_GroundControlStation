@@ -1,4 +1,4 @@
-find_package(Qt6 REQUIRED COMPONENTS Concurrent Core Gui Location Positioning Qml QmlIntegration Quick Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Location Positioning Qml QmlIntegration Quick Widgets OPTIONAL_COMPONENTS Concurrent)
 
 if(QGC_UTM_ADAPTER)
     add_definitions(-DQGC_UTM_ADAPTER)
@@ -66,7 +66,6 @@ qt_add_library(QmlControls STATIC
 
 target_link_libraries(QmlControls
     PRIVATE
-        Qt6::Concurrent
         Qt6::Location
         FirmwarePlugin
         Geo
@@ -96,6 +95,12 @@ target_link_libraries(QmlControls
         Vehicle
         VideoManager
 )
+
+if(Qt6Concurrent_FOUND AND NOT QGC_DISABLE_CONCURRENT)
+    target_link_libraries(QmlControls PRIVATE Qt6::Concurrent)
+else()
+    target_compile_definitions(QGC_DISABLE_CONCURRENT)
+endif()
 
 target_include_directories(QmlControls PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

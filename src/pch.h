@@ -8,8 +8,12 @@
  ****************************************************************************/
 
 #ifdef __cplusplus
+#ifndef QGC_ENABLE_BLUETOOTH
 #include <QtBluetooth/QBluetoothSocket>
+#endif
+#ifndef QGC_DISABLE_MAVLINK_INSPECTOR
 #include <QtCharts/QAbstractSeries>
+#endif
 #include <QtConcurrent/QtConcurrent>
 #include <QtCore/QCoreApplication>
 #include <QtGui/QGuiApplication>

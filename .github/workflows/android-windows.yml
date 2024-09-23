@@ -15,6 +15,7 @@ on:
       - 'deploy/**'
       - 'docs/**'
       - '.github/workflows/docs_deploy.yml'
+      - '.github/workflows/ios.yml'
       - '.github/workflows/linux.yml'
       - '.github/workflows/macos.yml'
       - '.github/workflows/windows.yml'

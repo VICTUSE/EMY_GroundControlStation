@@ -1,4 +1,4 @@
-find_package(Qt6 REQUIRED COMPONENTS Core Charts Gui Qml QmlIntegration)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml QmlIntegration)
 
 qt_add_library(AnalyzeView STATIC
     ExifParser.cc
@@ -11,23 +11,15 @@ qt_add_library(AnalyzeView STATIC
     LogDownloadController.h
     LogEntry.cc
     LogEntry.h
-    MAVLinkChartController.cc
-    MAVLinkChartController.h
     MAVLinkConsoleController.cc
     MAVLinkConsoleController.h
-    MAVLinkInspectorController.cc
-    MAVLinkInspectorController.h
-    MAVLinkMessage.cc
-    MAVLinkMessage.h
-    MAVLinkMessageField.cc
-    MAVLinkMessageField.h
-    MAVLinkSystem.cc
-    MAVLinkSystem.h
     PX4LogParser.cc
     PX4LogParser.h
     ULogParser.cc
     ULogParser.h
 )
+
+#===========================================================================#
 
 include(FetchContent)
 FetchContent_Declare(ulogparser
@@ -39,7 +31,6 @@ FetchContent_MakeAvailable(ulogparser)
 
 target_link_libraries(AnalyzeView
     PRIVATE
-        Qt6::Charts
         Qt6::Gui
         Qt6::Qml
         ulog_cpp::ulog_cpp
@@ -54,6 +45,33 @@ target_link_libraries(AnalyzeView
         MAVLink
         QmlControls
 )
+
+#===========================================================================#
+
+if(NOT QGC_DISABLE_MAVLINK_INSPECTOR)
+    find_package(Qt6 REQUIRED COMPONENTS Charts)
+    target_sources(AnalyzeView
+        PRIVATE
+            MAVLinkChartController.cc
+            MAVLinkChartController.h
+            MAVLinkInspectorController.cc
+            MAVLinkInspectorController.h
+            MAVLinkMessage.cc
+            MAVLinkMessage.h
+            MAVLinkMessageField.cc
+            MAVLinkMessageField.h
+            MAVLinkSystem.cc
+            MAVLinkSystem.h
+    )
+    target_link_libraries(AnalyzeView
+        PRIVATE
+            Qt6::Charts
+    )
+else()
+    target_compile_definitions(AnalyzeView PUBLIC QGC_DISABLE_MAVLINK_INSPECTOR)
+endif()
+
+#===========================================================================#
 
 set(MINIMUM_EXIV2_VERSION 0.28.3)
 
@@ -113,6 +131,8 @@ if(NOT Exiv2_FOUND)
     )
 endif()
 
+#===========================================================================#
+
 include(FetchContent)
 FetchContent_Declare(easyexif
     GIT_REPOSITORY https://github.com/mayanklahiri/easyexif.git
@@ -132,6 +152,8 @@ target_include_directories(AnalyzeView
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${easyexif_SOURCE_DIR}
 )
+
+#===========================================================================#
 
 # qt_add_qml_module(AnalyzeView
 #     URI QGroundControl.AnalyzeView
