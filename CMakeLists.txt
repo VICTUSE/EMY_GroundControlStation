@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.22.1)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+if(IOS)
+    set(CMAKE_SYSTEM_NAME iOS)
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
+    set(CMAKE_OSX_SYSROOT "iphoneos")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "14.0")
+endif()
+
 #######################################################
 #                Custom Build Configuration
 #######################################################
@@ -155,19 +162,16 @@ endif()
 find_package(Qt6
     REQUIRED
     COMPONENTS
-        Bluetooth
-        Charts
-        Concurrent
         Core
         Core5Compat
         Location
         Multimedia
         Network
+        OpenGL
         Positioning
         Quick
         QuickControls2
         QuickWidgets
-        OpenGL
         Sensors
         Sql
         Svg
@@ -176,7 +180,11 @@ find_package(Qt6
         Widgets
         Xml
     OPTIONAL_COMPONENTS
+        Bluetooth
+        Concurrent
+        Charts
         LinguistTools
+        Quick3D
         SerialPort
     HINTS
         ${QT_LIBRARY_HINTS}
@@ -213,8 +221,6 @@ if(QGC_DEBUG_QML)
     add_compile_definitions(QT_QML_DEBUG)
 endif()
 
-cmake_dependent_option(QGC_NO_SERIAL_LINK "Build QGroundControl without Serial Support Support." OFF "NOT IOS" ON)
-
 if(QGC_DISABLE_APM_MAVLINK)
     add_compile_definitions(NO_ARDUPILOT_DIALECT)
 endif()
@@ -227,6 +233,12 @@ endif()
 # if(CMAKE_OSX_ARCHITECTURES AND NOT "${CMAKE_HOST_SYSTEM_PROCESSOR}" IN_LIST CMAKE_OSX_ARCHITECTURES)
 
 cmake_dependent_option(QGC_BUILD_DEPENDENCIES "Force Building of Dependencies." OFF "NOT CMAKE_CROSSCOMPILING;NOT MACOS_UNIVERSAL_BUILD" ON)
+
+cmake_dependent_option(QGC_NO_SERIAL_LINK "Build QGroundControl without Serial Support Support." OFF "Qt6SerialPort_FOUND" ON)
+cmake_dependent_option(QGC_ENABLE_BLUETOOTH "Enable Viewer3D" ON "Qt6Bluetooth_FOUND" OFF)
+cmake_dependent_option(QGC_DISABLE_VIEWER3D "Disable Viewer3D" OFF "Qt6Quick3D_FOUND" ON) # This removes QtQuick3D which is GPL licensed
+cmake_dependent_option(QGC_DISABLE_MAVLINK_INSPECTOR "Disable Mavlink Inspector" OFF "Qt6Charts_FOUND" ON) # This removes QtCharts which is GPL licensed
+cmake_dependent_option(QGC_DISABLE_CONCURRENT "Disable Qt6Concurrent" OFF "Qt6Concurrent_FOUND" ON) # This removes QtCharts which is GPL licensed
 
 #######################################################
 #                Custom Build Configuration
@@ -365,26 +377,19 @@ elseif(MACOS)
 elseif(IOS)
     enable_language(OBJC)
 
-    set(CMAKE_OSX_ARCHITECTURES "arm64")
-    set(CMAKE_OSX_SYSROOT "iphoneos")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "14.0")
-    set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "14.0")
-    set(CMAKE_XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2") # iPhone,iPad
-    set(CMAKE_XCODE_ATTRIBUTE_INFOPLIST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/deploy/ios/iOS-Info.plist")
-
     set_target_properties(${PROJECT_NAME}
         PROPERTIES
+            MACOSX_BUNDLE TRUE
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/deploy/ios/iOS-Info.plist"
+            MACOSX_BUNDLE_BUNDLE_NAME "${CMAKE_PROJECT_NAME}"
+            MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+            MACOSX_BUNDLE_COPYRIGHT "${QGC_APP_COPYRIGHT}"
+            MACOSX_BUNDLE_GUI_IDENTIFIER "${QGC_BUNDLE_ID}"
+            # MACOSX_BUNDLE_ICON_FILE "macx.icns"
+            MACOSX_BUNDLE_INFO_STRING "${QGC_APP_DESCRIPTION}"
+            MACOSX_BUNDLE_LONG_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
             QT_IOS_LAUNCH_SCREEN ${CMAKE_SOURCE_DIR}/deploy/ios/QGCLaunchScreen.xib
-            XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.mavlink.qgroundcontrol"
-            XCODE_ATTRIBUTE_PRODUCT_NAME ${CMAKE_PROJECT_NAME}
-            XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION ${CMAKE_PROJECT_VERSION}
-            XCODE_ATTRIBUTE_MARKETING_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-            XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
-            XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "14.0"
-            XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2" # iPhone,iPad
-            XCODE_ATTRIBUTE_INFOPLIST_KEY_CFBundleDisplayName ${CMAKE_PROJECT_NAME}
-            XCODE_ATTRIBUTE_INFOPLIST_KEY_LSApplicationCategoryType "public.app-category.mycategory"
-            XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS "YES"
     )
 elseif(ANDROID)
     FetchContent_Declare(android_openssl

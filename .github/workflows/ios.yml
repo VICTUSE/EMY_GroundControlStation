@@ -1,7 +1,26 @@
 name: iOS
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - 'Stable*'
+    tags:
+      - 'v*'
+    paths-ignore:
+      - 'android/**'
+      - 'deploy/**'
+      - 'docs/**'
+  pull_request:
+    paths-ignore:
+      - 'android/**'
+      - 'deploy/**'
+      - 'docs/**'
+      - '.github/workflows/android-*.yml'
+      - '.github/workflows/docs_deploy.yml'
+      - '.github/workflows/*linux.yml'
+      - '.github/workflows/macos.yml'
+      - '.github/workflows/windows.yml'
 
 jobs:
   build:
@@ -82,7 +101,6 @@ jobs:
           aqtversion: ==3.1.*
           host: mac
           target: ios
-          arch: ios
           dir: ${{ runner.temp }}
           extra: --autodesktop
           modules: qtcharts qtlocation qtpositioning qtspeech qt5compat qtmultimedia qtimageformats qtshadertools qtconnectivity qtquick3d qtsensors
@@ -94,8 +112,12 @@ jobs:
         working-directory: ${{ runner.temp }}/shadow_build_dir
         run: ${{ env.QT_ROOT_DIR }}/bin/qt-cmake -S ${{ github.workspace }} -B . -G Ninja
               -DCMAKE_BUILD_TYPE=${{ matrix.BuildType }}
+              -DQT_DEBUG_FIND_PACKAGE=ON
+              -DCMAKE_OSX_ARCHITECTURES="arm64"
               -DQT_HOST_PATH="${{ env.QT_ROOT_DIR }}/../macos"
               -DQGC_STABLE_BUILD=${{ github.ref_type == 'tag' || contains(github.ref, 'Stable') && 'ON' || 'OFF' }}
+              -DCMAKE_FIND_ROOT_PATH="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/"
+              -DQGC_ENABLE_GST_VIDEOSTREAMING=OFF
 
       - name: Build
         working-directory: ${{ runner.temp }}/shadow_build_dir

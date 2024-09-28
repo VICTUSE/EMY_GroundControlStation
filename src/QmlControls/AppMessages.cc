@@ -68,7 +68,9 @@ void AppLogModel::writeMessages(const QString dest_file)
 {
     const QString writebuffer(stringList().join('\n').append('\n'));
 
+#ifndef QGC_DISABLE_CONCURRENT
     QFuture<void> future = QtConcurrent::run([dest_file, writebuffer] {
+#endif
         emit debug_model->writeStarted();
         bool success = false;
         QFile file(dest_file);
@@ -80,7 +82,9 @@ void AppLogModel::writeMessages(const QString dest_file)
             qWarning() << "AppLogModel::writeMessages write failed:" << file.errorString();
         }
         emit debug_model->writeFinished(success);
+#ifndef QGC_DISABLE_CONCURRENT
     });
+#endif
 }
 
 void AppLogModel::log(const QString message)

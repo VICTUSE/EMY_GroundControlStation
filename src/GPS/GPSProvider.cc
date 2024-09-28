@@ -19,7 +19,7 @@
 #ifdef Q_OS_ANDROID
 #include "qserialport.h"
 #else
-#include <QSerialPort>
+#include <QtSerialPort/QSerialPort>
 #endif
 
 #define GPS_RECEIVE_TIMEOUT 1200
