@@ -21,7 +21,6 @@
 #include "QmlObjectListModel.h"
 
 class FirmwarePluginManager;
-class JoystickManager;
 class QGCApplication;
 class MAVLinkProtocol;
 class LinkInterface;
@@ -118,7 +117,6 @@ private:
     QmlObjectListModel  _selectedVehicles;
 
     FirmwarePluginManager*      _firmwarePluginManager;
-    JoystickManager*            _joystickManager;
     MAVLinkProtocol*            _mavlinkProtocol;
     QGeoCoordinate              _lastKnownLocation;
 
