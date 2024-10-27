@@ -70,20 +70,14 @@ Item {
 
                     QGCButton {
                         text:       qsTr("Select All")
-                        enabled:    multiVehicleList.getSelectedVehicles().length !== QGroundControl.multiVehicleManager.vehicles.count
+                        enabled:    multiVehicleList.selectedVehicles && multiVehicleList.selectedVehicles.count !== QGroundControl.multiVehicleManager.vehicles.count
                         onClicked:  multiVehicleList.selectAll()
                     }
 
                     QGCButton {
                         text:       qsTr("Deselect All")
-                        enabled:    multiVehicleList.getSelectedVehicles().length > 0
+                        enabled:    multiVehicleList.selectedVehicles && multiVehicleList.selectedVehicles.count > 0
                         onClicked:  multiVehicleList.deselectAll()
-                    }
-
-                    QGCButton {
-                        text:       qsTr("Activate")
-                        enabled:    multiVehicleList.getSelectedVehicles().length === 1 && _activeVehicle !== multiVehicleList.getSelectedVehicles()[0]
-                        onClicked:  multiVehicleList.activateVehicle()
                     }
 
                 }
@@ -115,68 +109,31 @@ Item {
                     QGCButton {
                         text:       qsTr("Arm")
                         enabled:    multiVehicleList.armAvailable()
-                        onClicked:  multiVehicleList.armSelectedVehicles()
+                        onClicked:  _guidedController.confirmAction(_guidedController.actionMVArm)
                     }
 
                     QGCButton {
                         text:       qsTr("Disarm")
                         enabled:    multiVehicleList.disarmAvailable()
-                        onClicked:  multiVehicleList.disarmSelectedVehicles()
+                        onClicked:  _guidedController.confirmAction(_guidedController.actionMVDisarm)
                     }
 
                     QGCButton {
                         text:       qsTr("Start")
                         enabled:    multiVehicleList.startAvailable()
-                        onClicked:  multiVehicleList.startSelectedVehicles()
+                        onClicked:  _guidedController.confirmAction(_guidedController.actionMVStartMission)
                     }
 
                     QGCButton {
                         text:       qsTr("Pause")
                         enabled:    multiVehicleList.pauseAvailable()
-                        onClicked:  multiVehicleList.pauseSelectedVehicles()
+                        onClicked:  _guidedController.confirmAction(_guidedController.actionMVPause)
                     }
                 }
             }
         }
 
-        ColumnLayout {
-            id:                     vehicleModeGroup
-            anchors.top:            actionGroup.bottom
-            anchors.right:          parent.right
-            anchors.left:           parent.left
-            anchors.margins:        _margins
-            Layout.alignment: Qt.AlignHCenter
-
-            QGCLabel {
-                text: qsTr("Multi Vehicle Modes")
-            }
-
-            QGCFlickable {
-                Layout.fillWidth:       true
-                height:                 ScreenTools.defaultFontPixelWidth * 6
-                contentWidth:           vehicleModeRowLayout.width
-                flickableDirection:     Flickable.HorizontalFlick
-
-                RowLayout {
-                    id:             vehicleModeRowLayout
-                    spacing:        _margins
-
-                    QGCButton {
-                        text:       qsTr("RTL")
-                        enabled:    multiVehicleList.rtlAvailable()
-                        onClicked:  multiVehicleList.rtlSelectedVehicles()
-                    }
-
-                    QGCButton {
-                        text:       qsTr("Take control")
-                        enabled:    multiVehicleList.takeControlAvailable()
-                        onClicked:  multiVehicleList.takeControlSelectedVehicles()
-                    }
-
-                }
-            }
-
-        }
+        // TODO: mv vehicle modes
 
     }
 

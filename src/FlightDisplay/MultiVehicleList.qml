@@ -24,172 +24,14 @@ Item {
     property var    _guidedController:    globals.guidedControllerFlyView
     property var    _activeVehicleColor:  "green"
     property var    _activeVehicle:       QGroundControl.multiVehicleManager.activeVehicle
+    property var    selectedVehicles:     QGroundControl.multiVehicleManager.selectedVehicles
 
     QGCPalette { id: qgcPal }
 
-    ListModel {
-        id: selectedVehiclesModel
-    }
-
-    function getSelectedVehicles() {
-        var selectedVehicles = [ ]
-        forEachSelectedVehicle(function(vehicle) {
-            selectedVehicles.push(vehicle)
-        })
-        return selectedVehicles
-    }
-
-    function getVehicleIndex(vehicleId) {
-        for (var i = 0; i < selectedVehiclesModel.count; i++) {
-            if (selectedVehiclesModel.get(i).id === vehicleId) {
-                return i
-            }
-        }
-        return -1
-    }
-
-    function forEachSelectedVehicle(action) {
-        for (var i = 0; i < selectedVehiclesModel.count; i++) {
-            var vehicleId = selectedVehiclesModel.get(i).id
-            var vehicle = QGroundControl.multiVehicleManager.getVehicleById(vehicleId)
-            action(vehicle)
-        }
-    }
-
-    function armSelectedVehicles() {
-        forEachSelectedVehicle(function(vehicle) {
-            vehicle.armed = true
-            console.log("vehicle " + vehicle.id + " has been armed.")
-        })
-    }
-
     function armAvailable() {
-        var available = false
-        forEachSelectedVehicle(function(vehicle) {
-            if(vehicle.armed === false){
-                available =  true
-            }
-        })
-        return available
-    }
-
-    function disarmSelectedVehicles() {
-        forEachSelectedVehicle(function(vehicle) {
-            vehicle.armed = false
-            console.log("vehicle " + vehicle.id + " has been disarmed.")
-        })
-    }
-
-    function disarmAvailable() {
-        var available = false
-        forEachSelectedVehicle(function(vehicle) {
-            if(vehicle.armed === true){
-                available = true
-            }
-        })
-        return available
-    }
-
-    function startSelectedVehicles() {
-        forEachSelectedVehicle(function(vehicle) {
-            if (vehicle.armed === true){
-                vehicle.startMission()
-                console.log("mission started for " + vehicle.id)
-            }
-
-        })
-    }
-
-    function startAvailable() {
-        var available = false
-        forEachSelectedVehicle(function(vehicle) {
-            if(vehicle.armed === true && vehicle.flightMode !== vehicle.missionFlightMode){
-                available = true
-            }
-        })
-        return available
-    }
-
-    function pauseSelectedVehicles() {
-        forEachSelectedVehicle(function(vehicle) {
-            if(vehicle.pauseVehicleSupported){
-                vehicle.pauseVehicle()
-                console.log("mission paused for " + vehicle.id)
-            }
-        })
-    }
-    function pauseAvailable() {
-        var available = false
-        forEachSelectedVehicle(function(vehicle) {
-            if(vehicle.armed === true && vehicle.pauseVehicleSupported){
-                available = true
-            }
-        })
-        return available
-    }
-
-    function rtlSelectedVehicles() {
-        forEachSelectedVehicle(function(vehicle) {
-            if (vehicle.armed === true){
-                vehicle.flightMode = vehicle.rtlFlightMode
-                console.log("vehicle " + vehicle.id + " returning to launch")
-            }
-        })
-    }
-
-    function rtlAvailable(){
-        var available = false
-        forEachSelectedVehicle(function(vehicle) {
-            if(vehicle.armed === true && vehicle.flightMode !== vehicle.rtlFlightMode){
-                available = true
-            }
-        })
-        return available
-    }
-
-    function takeControlSelectedVehicles() {
-        forEachSelectedVehicle(function(vehicle) {
-            vehicle.flightMode = vehicle.takeControlFlightMode
-            console.log("taking control for " + vehicle.id)
-        })
-    }
-
-    function takeControlAvailable(){
-        var available = false
-        forEachSelectedVehicle(function(vehicle) {
-            if(vehicle.armed === true && vehicle.flightMode !== vehicle.takeControlFlightMode){
-                available = true
-            }
-        })
-        return available
-    }
-
-    function activateVehicle() {
-        if (selectedVehiclesModel.count === 1){
-            var vehicle = getSelectedVehicles()[0]
-            QGroundControl.multiVehicleManager.activeVehicle = vehicle
-        }
-    }
-
-    function selectAll() {
-        var vehicles = QGroundControl.multiVehicleManager.vehicles
-        for (var i = 0; i < vehicles.count; i++) {
-            var vehicle = vehicles.get(i)
-            var vehicleId = vehicle.id
-            if (getVehicleIndex(vehicleId) === -1){
-                selectVehicle(vehicleId)
-            }
-        }
-        printSelectedVehicles()
-    }
-
-    function deselectAll() {
-        selectedVehiclesModel.clear()
-    }
-
-    function isSelected(vehicleId) {
-        for (var i = 0; i < selectedVehiclesModel.count; i++) {
-            if (selectedVehiclesModel.get(i).id === vehicleId) {
+        for (var i = 0; i < selectedVehicles.count; i++) {
+            var vehicle = selectedVehicles.get(i)
+            if (vehicle.armed === false) {
                 return true
             }
         }
@@ -197,32 +39,84 @@ Item {
     }
 
 
+    function disarmAvailable() {
+        for (var i = 0; i < selectedVehicles.count; i++) {
+            var vehicle = selectedVehicles.get(i)
+            if (vehicle.armed === true) {
+                return true
+            }
+        }
+        return false
+    }
+
+    function startAvailable() {
+        for (var i = 0; i < selectedVehicles.count; i++) {
+            var vehicle = selectedVehicles.get(i)
+            if (vehicle.armed === true && vehicle.flightMode !== vehicle.missionFlightMode){
+                return true
+            }
+        }
+        return false
+    }
+
+    function pauseAvailable() {
+        for (var i = 0; i < selectedVehicles.count; i++) {
+            var vehicle = selectedVehicles.get(i)
+            if (vehicle.armed === true && vehicle.pauseVehicleSupported) {
+                return true
+            }
+        }
+        return false
+    }
+
     function selectVehicle(vehicleId) {
-        selectedVehiclesModel.append({ id: vehicleId })
+        QGroundControl.multiVehicleManager.selectVehicle(vehicleId)
     }
 
     function deselectVehicle(vehicleId) {
-        var index = getVehicleIndex(vehicleId)
-        if (index !== -1) {
-            selectedVehiclesModel.remove(index)
-        }
+        QGroundControl.multiVehicleManager.deselectVehicle(vehicleId)
     }
 
     function toggleSelect(vehicleId) {
-        if (getVehicleIndex(vehicleId) !== -1) {
-            deselectVehicle(vehicleId)
-        } else {
+        if (!vehicleSelected(vehicleId)) {
             selectVehicle(vehicleId)
+        } else {
+            deselectVehicle(vehicleId)
         }
         printSelectedVehicles()
     }
 
+    function selectAll() {
+        var vehicles = QGroundControl.multiVehicleManager.vehicles
+        for (var i = 0; i < vehicles.count; i++) {
+            var vehicle = vehicles.get(i)
+            var vehicleId = vehicle.id
+            if (!vehicleSelected(vehicleId)) {
+                selectVehicle(vehicleId)
+            }
+        }
+        printSelectedVehicles()
+    }
+
+    function deselectAll() {
+        QGroundControl.multiVehicleManager.deselectAllVehicles()
+    }
+
+    function vehicleSelected(vehicleId) {
+        for (var i = 0; i < selectedVehicles.count; i++ ) {
+            var currentId = selectedVehicles.get(i).id
+            if (vehicleId === currentId) {
+                return true
+            }
+        }
+        return false
+    }
+
     function printSelectedVehicles() {
-        var vehicles = [ ]
-        forEachSelectedVehicle(function(vehicle) {
-            vehicles.push(vehicle.id)
-        })
-        console.log(vehicles)
+        console.log(selectedVehicles)
+        for (var i = 0; i < selectedVehicles.count; i++) {
+            console.log(selectedVehicles.get(i).id)
+        }
     }
 
     QGCListView {
@@ -245,7 +139,7 @@ Item {
             height:         innerColumn.y + innerColumn.height + _margin
             color:          QGroundControl.multiVehicleManager.activeVehicle == _vehicle ? _activeVehicleColor : qgcPal.button
             radius:         _margin
-            border.width:   isSelected(_vehicle.id) ? 1 : 0
+            border.width:   _vehicle && vehicleSelected(_vehicle.id) ? 1 : 0
             border.color:   qgcPal.text
 
             property var    _vehicle:   object
@@ -287,26 +181,36 @@ Item {
                     spacing:            _margin
 
                     FlightModeMenu {
-                        Layout.alignment:           Qt.AlignHCenter
-                        font.pointSize:             ScreenTools.largeFontPointSize
-                        color:                      qgcPal.text
-                        currentVehicle:             _vehicle
+                        Layout.alignment:   Qt.AlignHCenter
+                        font.pointSize:     ScreenTools.largeFontPointSize
+                        color:              qgcPal.text
+                        currentVehicle:     _vehicle
                     }
 
                     QGCLabel {
-                        Layout.alignment:           Qt.AlignHCenter
-                        text:                       _vehicle && _vehicle.armed ? qsTr("Armed") : qsTr("Disarmed")
-                        color:                      qgcPal.text
+                        Layout.alignment:   Qt.AlignHCenter
+                        text:               _vehicle && _vehicle.armed ? qsTr("Armed") : qsTr("Disarmed")
+                        color:              qgcPal.text
                     }
                 }
-
             }
 
             QGCMouseArea {
-                anchors.fill:   parent
-                onClicked:      multiVehicleList.toggleSelect(_vehicle.id)
-            }
+                anchors.fill:       parent
+                onClicked:          singleClickTimer.start()
+                onDoubleClicked: {
+                    singleClickTimer.stop()
+                    QGroundControl.multiVehicleManager.activeVehicle = _vehicle
+                }
 
+                Timer {
+                    id:          singleClickTimer
+                    interval:    20
+                    running:     false
+                    repeat:      false
+                    onTriggered: multiVehicleList.toggleSelect(_vehicle.id)
+                }
+            }
         }
     }
 }
