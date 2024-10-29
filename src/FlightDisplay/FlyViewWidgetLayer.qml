@@ -46,7 +46,7 @@ Item {
     property real   _margins:               ScreenTools.defaultFontPixelWidth / 2
     property real   _toolsMargin:           ScreenTools.defaultFontPixelWidth * 0.75
     property rect   _centerViewport:        Qt.rect(0, 0, width, height)
-    property real   _rightPanelWidth:       ScreenTools.defaultFontPixelWidth * 35
+    property real   _rightPanelWidth:       ScreenTools.defaultFontPixelWidth * 40
     property alias  _gripperMenu:           gripperOptions
     property real   _layoutMargin:          ScreenTools.defaultFontPixelWidth * 0.75
     property bool   _layoutSpacing:         ScreenTools.defaultFontPixelWidth
@@ -76,9 +76,24 @@ Item {
         anchors.right:          parent.right
         anchors.rightMargin:    _layoutMargin
         width:                  _rightPanelWidth
-        height:                 _rightPanelWidth * 2
+        height:                 _rightPanelWidth * 1.75
 
         property real topEdgeRightInset:    height + _layoutMargin
+        property real rightEdgeTopInset:    width + _layoutMargin
+        property real rightEdgeCenterInset: rightEdgeTopInset
+    }
+
+    FlyViewTopRightColumnLayout {
+        id:                 topRightColumnLayout
+        anchors.margins:    _layoutMargin
+        anchors.top:        topRightPanel.top
+        anchors.bottom:     bottomRightRowLayout.top
+        anchors.right:      parent.right
+        anchors.topMargin:  topRightPanel.toggleBtn.height + _toolsMargin
+        spacing:            _layoutSpacing
+        mvPanelVisible:     topRightPanel.panelVisible
+
+        property real topEdgeRightInset:    childrenRect.height + _layoutMargin
         property real rightEdgeTopInset:    width + _layoutMargin
         property real rightEdgeCenterInset: rightEdgeTopInset
     }

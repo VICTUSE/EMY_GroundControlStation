@@ -83,7 +83,6 @@ Item {
         } else {
             deselectVehicle(vehicleId)
         }
-        printSelectedVehicles()
     }
 
     function selectAll() {
@@ -95,7 +94,6 @@ Item {
                 selectVehicle(vehicleId)
             }
         }
-        printSelectedVehicles()
     }
 
     function deselectAll() {
@@ -110,13 +108,6 @@ Item {
             }
         }
         return false
-    }
-
-    function printSelectedVehicles() {
-        console.log(selectedVehicles)
-        for (var i = 0; i < selectedVehicles.count; i++) {
-            console.log(selectedVehicles.get(i).id)
-        }
     }
 
     QGCListView {
@@ -144,53 +135,62 @@ Item {
 
             property var    _vehicle:   object
 
-            RowLayout {
-                id:                 innerColumn
-                anchors.margins:    _margin
-                anchors.top:        parent.top
-                anchors.left:       parent.left
-                spacing:            _margin
-                Layout.fillWidth:   true
+            Rectangle {
+                height:                     parent.height
+                width:                      innerColumn.width
+                anchors.horizontalCenter:   parent.horizontalCenter
+                color:                      "transparent"
 
-                QGCCompassWidget {
-                    size:                        _widgetHeight
-                    usedByMultipleVehicleList:   true
-                    vehicle:                     _vehicle
-                }
-
-                QGCLabel {
-                    text: " | "
-                    font.pointSize:     ScreenTools.largeFontPointSize
-                    color:              qgcPal.text
-                }
-
-                QGCLabel {
-                    text:               _vehicle ? _vehicle.id : ""
-                    font.pointSize:     ScreenTools.largeFontPointSize
-                    color:              qgcPal.text
-                }
-
-                QGCLabel {
-                    text: " | "
-                    font.pointSize:     ScreenTools.largeFontPointSize
-                    color:              qgcPal.text
-                }
-
-                ColumnLayout {
-                    Layout.alignment:   Qt.AlignCenter
+                RowLayout {
+                    id:                 innerColumn
+                    anchors.margins:    _margin
                     spacing:            _margin
 
-                    FlightModeMenu {
-                        Layout.alignment:   Qt.AlignHCenter
-                        font.pointSize:     ScreenTools.largeFontPointSize
-                        color:              qgcPal.text
-                        currentVehicle:     _vehicle
+                    QGCCompassWidget {
+                        id: compassWidget
+                        size:                        _widgetHeight
+                        usedByMultipleVehicleList:   true
+                        vehicle:                     _vehicle
                     }
 
                     QGCLabel {
-                        Layout.alignment:   Qt.AlignHCenter
-                        text:               _vehicle && _vehicle.armed ? qsTr("Armed") : qsTr("Disarmed")
-                        color:              qgcPal.text
+                        text: " | "
+                        font.pointSize:       ScreenTools.largeFontPointSize
+                        color:                qgcPal.text
+                        Layout.alignment:     Qt.AlignHCenter
+                    }
+
+                    QGCLabel {
+                        text:                 _vehicle ? _vehicle.id : ""
+                        font.pointSize:       ScreenTools.largeFontPointSize
+                        color:                qgcPal.text
+                        Layout.alignment:     Qt.AlignHCenter
+                    }
+
+                    QGCLabel {
+                        text: " | "
+                        font.pointSize:       ScreenTools.largeFontPointSize
+                        color:                qgcPal.text
+                        Layout.alignment:     Qt.AlignHCenter
+                    }
+
+                    ColumnLayout {
+                        spacing:              _margin
+                        Layout.rightMargin:   compassWidget.width / 4
+                        Layout.alignment:     Qt.AlignCenter
+
+                        FlightModeMenu {
+                            Layout.alignment:     Qt.AlignHCenter
+                            font.pointSize:       ScreenTools.largeFontPointSize
+                            color:                qgcPal.text
+                            currentVehicle:       _vehicle
+                        }
+
+                        QGCLabel {
+                            Layout.alignment:     Qt.AlignHCenter
+                            text:                 _vehicle && _vehicle.armed ? qsTr("Armed") : qsTr("Disarmed")
+                            color:                qgcPal.text
+                        }
                     }
                 }
             }
@@ -199,8 +199,8 @@ Item {
                 anchors.fill:       parent
                 onClicked:          singleClickTimer.start()
                 onDoubleClicked: {
-                    singleClickTimer.stop()
-                    QGroundControl.multiVehicleManager.activeVehicle = _vehicle
+                                    singleClickTimer.stop()
+                                    QGroundControl.multiVehicleManager.activeVehicle = _vehicle
                 }
 
                 Timer {
@@ -208,7 +208,7 @@ Item {
                     interval:    20
                     running:     false
                     repeat:      false
-                    onTriggered: multiVehicleList.toggleSelect(_vehicle.id)
+                    onTriggered: toggleSelect(_vehicle.id)
                 }
             }
         }
