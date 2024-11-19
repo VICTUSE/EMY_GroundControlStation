@@ -11,6 +11,7 @@
 #include "Joystick.h"
 #include "QGC.h"
 #include "QGCApplication.h"
+#include "QGCCorePlugin.h"
 #include "CustomAction.h"
 #include "SettingsManager.h"
 #include "CustomMavlinkActionsSettings.h"
@@ -1044,6 +1045,7 @@ void Joystick::_executeButtonAction(const QString& action, bool buttonDown)
         if (buttonDown) emit landingGearRetract();
     } else {
         if (buttonDown && _activeVehicle) {
+            emit unknownAction(action);
             for (int i=0; i<_customActionManager.actions()->count(); i++) {
                 auto customAction = _customActionManager.actions()->value<CustomAction*>(i);
                 if (action == customAction->label()) {
@@ -1124,6 +1126,11 @@ void Joystick::_buildActionList(Vehicle* activeVehicle)
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionGripperRelease));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLandingGearDeploy));
     _assignableButtonActions.append(new AssignableButtonAction(this, _buttonActionLandingGearRetract));
+
+    const auto customActions = qgcApp()->toolbox()->corePlugin()->joystickActions();
+    for (const auto& action : customActions) {
+	    _assignableButtonActions.append(new AssignableButtonAction(this, action.name, action.canRepeat));
+    }
 
     for (int i=0; i<_customActionManager.actions()->count(); i++) {
         auto customAction = _customActionManager.actions()->value<CustomAction*>(i);
