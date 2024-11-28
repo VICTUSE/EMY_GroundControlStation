@@ -267,9 +267,10 @@ QT += \
 AndroidBuild || iOSBuild {
     # Android and iOS don't unclude these
 } else {
+}
     QT += \
         serialport \
-}
+
 
 contains(DEFINES, QGC_ENABLE_BLUETOOTH) {
 QT += \
