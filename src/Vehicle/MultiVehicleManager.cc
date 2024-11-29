@@ -331,6 +331,41 @@ QString MultiVehicleManager::loadSetting(const QString &name, const QString& def
     return settings.value(name, defaultValue).toString();
 }
 
+void MultiVehicleManager::selectVehicle(int vehicleId)
+{
+    if(!_vehicleSelected(vehicleId)) {
+        Vehicle* vehicle = getVehicleById(vehicleId);
+        _selectedVehicles.append(vehicle);
+    }
+}
+
+void MultiVehicleManager::deselectVehicle(int vehicleId)
+{
+    for (int i=0; i<_selectedVehicles.count(); i++) {
+        Vehicle* vehicle = qobject_cast<Vehicle*>(_selectedVehicles[i]);
+        if (vehicle->id() == vehicleId) {
+            _selectedVehicles.removeAt(i);
+            return;
+        }
+    }
+}
+
+void MultiVehicleManager::deselectAllVehicles()
+{
+    _selectedVehicles.clear();
+}
+
+bool MultiVehicleManager::_vehicleSelected(int vehicleId)
+{
+    for (int i=0; i<_selectedVehicles.count(); i++) {
+        Vehicle* vehicle = qobject_cast<Vehicle*>(_selectedVehicles[i]);
+        if (vehicle->id() == vehicleId) {
+            return true;
+        }
+    }
+    return false;
+}
+
 Vehicle* MultiVehicleManager::getVehicleById(int vehicleId)
 {
     for (int i=0; i< _vehicles.count(); i++) {

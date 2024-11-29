@@ -42,6 +42,7 @@ public:
     Q_PROPERTY(bool                 parameterReadyVehicleAvailable  READ parameterReadyVehicleAvailable                                 NOTIFY parameterReadyVehicleAvailableChanged)
     Q_PROPERTY(Vehicle*             activeVehicle                   READ activeVehicle                  WRITE setActiveVehicle          NOTIFY activeVehicleChanged)
     Q_PROPERTY(QmlObjectListModel*  vehicles                        READ vehicles                                                       CONSTANT)
+    Q_PROPERTY(QmlObjectListModel*  selectedVehicles                READ selectedVehicles                                               CONSTANT)
     Q_PROPERTY(bool                 gcsHeartBeatEnabled             READ gcsHeartbeatEnabled            WRITE setGcsHeartbeatEnabled    NOTIFY gcsHeartBeatEnabledChanged)
     Q_PROPERTY(Vehicle*             offlineEditingVehicle           READ offlineEditingVehicle                                          CONSTANT)
     Q_PROPERTY(QGeoCoordinate       lastKnownLocation               READ lastKnownLocation                                              NOTIFY lastKnownLocationChanged) //< Current vehicles last know location
@@ -49,6 +50,9 @@ public:
     // Methods
 
     Q_INVOKABLE Vehicle* getVehicleById(int vehicleId);
+    Q_INVOKABLE void      selectVehicle(int vehicleId);
+    Q_INVOKABLE void    deselectVehicle(int vehicleId);
+    Q_INVOKABLE void    deselectAllVehicles();
 
     // Property accessors
 
@@ -60,6 +64,7 @@ public:
     void setActiveVehicle(Vehicle* vehicle);
 
     QmlObjectListModel* vehicles(void) { return &_vehicles; }
+    QmlObjectListModel* selectedVehicles(void) { return &_selectedVehicles; }
 
     bool gcsHeartbeatEnabled(void) const { return _gcsHeartbeatEnabled; }
     void setGcsHeartbeatEnabled(bool gcsHeartBeatEnabled);
@@ -95,6 +100,7 @@ private slots:
 
 private:
     bool _vehicleExists(int vehicleId);
+    bool _vehicleSelected(int vehicleId);
 
     bool        _activeVehicleAvailable;            ///< true: An active vehicle is available
     bool        _parameterReadyVehicleAvailable;    ///< true: An active vehicle with ready parameters is available
@@ -107,6 +113,7 @@ private:
     QList<int>  _ignoreVehicleIds;          ///< List of vehicle id for which we ignore further communication
 
     QmlObjectListModel  _vehicles;
+    QmlObjectListModel  _selectedVehicles;
 
     QGeoCoordinate              _lastKnownLocation;
 
