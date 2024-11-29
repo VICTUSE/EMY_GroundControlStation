@@ -193,9 +193,11 @@ if(NOT Qt6LinguistTools_DIR)
     set(Qt6LinguistTools_DIR ${QT_HOST_PATH}/lib/cmake/Qt6LinguistTools)
 endif()
 
-# Require 6.6.3 because otherwise libQt6QuickControls2Basic.so.6 &
-# libQt6QuickControls2BasicStyleImpl.so.6 are missing.
-qt_standard_project_setup(REQUIRES 6.6.3)
+qt_standard_project_setup(
+    REQUIRES 6.7.3
+    SUPPORTS_UP_TO 6.7.3
+    I18N_SOURCE_LANGUAGE en
+)
 
 qt_policy(
     SET QTP0001 NEW
@@ -289,10 +291,9 @@ qt_add_executable(${PROJECT_NAME}
 )
 
 if(Qt6LinguistTools_FOUND)
-    # TODO: Update to new qt_add_translations form in Qt6.7
     file(GLOB TS_SOURCES ${CMAKE_SOURCE_DIR}/translations/qgc_*.ts)
     set_source_files_properties(${TS_SOURCES} PROPERTIES OUTPUT_LOCATION "${CMAKE_BINARY_DIR}/i18n")
-    qt_add_translations(${PROJECT_NAME}
+    qt_add_translations(${CMAKE_PROJECT_NAME}
         TS_FILES ${TS_SOURCES}
         RESOURCE_PREFIX "/"
         LUPDATE_OPTIONS -no-obsolete
@@ -419,7 +420,7 @@ elseif(ANDROID)
     set_target_properties(${PROJECT_NAME}
         PROPERTIES
             # QT_ANDROID_ABIS ${ANDROID_ABI}
-            QT_ANDROID_MIN_SDK_VERSION 25
+            QT_ANDROID_MIN_SDK_VERSION 26
             QT_ANDROID_TARGET_SDK_VERSION 35
             QT_ANDROID_PACKAGE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/android
             QT_ANDROID_VERSION_NAME ${CMAKE_PROJECT_VERSION}
